@@ -1,24 +1,26 @@
 package com.freeglm.app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,10 +64,28 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.SemiBold) },
+                navigationIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Menu,
+                        contentDescription = null,
+                        modifier = Modifier.padding(start = 12.dp),
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                },
+                title = {
+                    Text(
+                        stringResource(R.string.app_name),
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                },
                 actions = {
                     IconButton(onClick = { viewModel.newChat() }) {
-                        Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.new_chat))
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = stringResource(R.string.new_chat),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -81,21 +102,30 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
         ) {
             if (uiState.messages.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.empty_state),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = stringResource(R.string.empty_state),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    contentPadding = PaddingValues(vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(18.dp)
                 ) {
                     items(uiState.messages) { message ->
-                        MessageBubble(message)
+                        MessageRow(message)
                     }
                 }
             }
@@ -125,29 +155,52 @@ fun ChatScreen(viewModel: ChatViewModel = viewModel()) {
 }
 
 @Composable
-private fun MessageBubble(message: UiMessage) {
+private fun MessageRow(message: UiMessage) {
     val isUser = message.role == Role.USER
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
-    ) {
-        Surface(
-            color = if (isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-            shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
-                bottomStart = if (isUser) 16.dp else 4.dp,
-                bottomEnd = if (isUser) 4.dp else 16.dp
-            ),
-            modifier = Modifier.widthIn(max = 300.dp)
+    if (isUser) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.End
         ) {
-            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.widthIn(max = 300.dp)
+            ) {
+                Text(
+                    text = message.text,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+                )
+            }
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Surface(
+                color = MaterialTheme.colorScheme.onBackground,
+                shape = CircleShape,
+                modifier = Modifier.size(26.dp)
+            ) {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                    Text(
+                        text = "F",
+                        color = MaterialTheme.colorScheme.background,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            Column(modifier = Modifier.padding(start = 10.dp, top = 3.dp)) {
                 if (message.text.isEmpty() && message.isStreaming) {
                     TypingIndicator()
                 } else {
                     Text(
                         text = message.text,
-                        color = if (isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -159,7 +212,7 @@ private fun MessageBubble(message: UiMessage) {
 @Composable
 private fun TypingIndicator() {
     CircularProgressIndicator(
-        modifier = Modifier.height(16.dp).widthIn(min = 16.dp, max = 16.dp),
+        modifier = Modifier.size(16.dp),
         strokeWidth = 2.dp,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
@@ -173,44 +226,60 @@ private fun MessageInputBar(
     onInputChanged: (String) -> Unit,
     onSend: () -> Unit
 ) {
+    val canSend = input.isNotBlank() && !isSending
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth().imePadding()
     ) {
-        Row(
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceVariant,
+            shape = RoundedCornerShape(28.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 12.dp, vertical = 10.dp)
         ) {
-            TextField(
-                value = input,
-                onValueChange = onInputChanged,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text(stringResource(R.string.message_placeholder)) },
-                shape = RoundedCornerShape(24.dp),
-                colors = TextFieldDefaults.colors(
-                    unfocusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                    focusedIndicatorColor = androidx.compose.ui.graphics.Color.Transparent,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                maxLines = 5
-            )
-            Spacer(modifier = Modifier.padding(4.dp))
-            IconButton(
-                onClick = onSend,
-                enabled = input.isNotBlank() && !isSending
+            Row(
+                modifier = Modifier.padding(start = 16.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(R.string.send),
-                    tint = if (input.isNotBlank() && !isSending) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                    }
+                TextField(
+                    value = input,
+                    onValueChange = onInputChanged,
+                    modifier = Modifier.weight(1f),
+                    placeholder = {
+                        Text(
+                            stringResource(R.string.message_placeholder),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent
+                    ),
+                    maxLines = 6
                 )
+                IconButton(
+                    onClick = onSend,
+                    enabled = canSend,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(
+                            color = if (canSend) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            shape = CircleShape
+                        )
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = stringResource(R.string.send),
+                        tint = if (canSend) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
+                        }
+                    )
+                }
             }
         }
     }
