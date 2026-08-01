@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FreeGLM</string>
+    <string name="message_placeholder">Message FreeGLM…</string>
+    <string name="send">Send</string>
+    <string name="new_chat">New chat</string>
+    <string name="empty_state">Ask FreeGLM anything</string>
+    <string name="error_prefix">Error: %1$s</string>
+</resources>
