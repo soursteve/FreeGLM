@@ -13,3 +13,7 @@ local.properties
 *.apk
 *.aab
 .kotlin
+/keystore
+/keystore.properties
+*.jks
+*.keystore
